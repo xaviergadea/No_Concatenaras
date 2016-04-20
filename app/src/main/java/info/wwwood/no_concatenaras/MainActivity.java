@@ -3,6 +3,7 @@ package info.wwwood.no_concatenaras;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (v.getId()){
             case R.id.BTConcatenando:
+
                 Concatenar();
                 break;
             case R.id.BtStringBuilder:
@@ -49,7 +51,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
     private void Concatenar(){
-        long time_start, time_end;
+
+        /***************CODI SINCRONO ***********************/
+
+        /*long time_start, time_end;
         time_start = System.currentTimeMillis();
 
         int iteraciones = Integer.parseInt(ETIteraciones.getText().toString());
@@ -59,7 +64,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         Log.d("Concatenar: ",String.valueOf(TextConcat));
         time_end = System.currentTimeMillis();
-        TVTiempo.setText("Temps emprat "+ ( time_end - time_start ) +" milliseconds");
+        TVTiempo.setText("Temps emprat "+ ( time_end - time_start ) +" milliseconds");*/
+
+        /**********************************************************************/
+
+        /***************CODI ASINCRONO ***********************/
+        int iteraciones = Integer.parseInt(ETIteraciones.getText().toString());
+        new Concatenar().execute(iteraciones,LIPSUM,TVTiempo); //LLANÇAR CRIDA ASINCRONA
+        /**********************************************************************/
+
     }
     private void NoConcatenar(){
         long time_start, time_end;
@@ -77,4 +90,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         time_end = System.currentTimeMillis();
         TVTiempo.setText("Temps emprat "+ ( time_end - time_start ) +" milliseconds");
     }
+}
+class Concatenar extends AsyncTask<Object, Object, Object> //els 3 objects són per als 3 mètodes implementats a la classe
+{
+    EditText ETIteraciones=null;
+    String LIPSUM="";
+    private long tiempo;
+    @Override
+    protected Object doInBackground(Object... params) { //params és un array de paràmetres de 0 a n
+        long time_start, time_end;
+        time_start = System.currentTimeMillis();
+        /*EditText ETIteraciones=(EditText)params[0];
+        String LIPSUM=(String) params[1];*/
+
+        int iteraciones = Integer.parseInt(params[0].toString());
+        String LIPSUM=String.valueOf(params[1]);
+
+        TextView TVTiempo=(TextView) params[2];
+
+        String TextConcat="";
+        for (int i=0; i<= iteraciones;i++){
+            TextConcat+=LIPSUM;
+        }
+        Log.d("Concatenar: ",String.valueOf(TextConcat));
+        time_end = System.currentTimeMillis();
+
+        tiempo=time_end - time_start;
+        return TVTiempo;
+    }
+
+    @Override
+    protected void onProgressUpdate(Object... values) {
+
+    }
+
+    @Override
+    protected void onPostExecute(Object result) {
+        super.onPostExecute(result);
+        TextView TVTiempo=(TextView) result;
+        TVTiempo.setText(String.valueOf(tiempo));
+    }
+
+}
+class NoConcatenar
+{
+
 }
